@@ -1,8 +1,3 @@
-# log
-Zap-based logging
-
-## Example
-```go
 package main
 
 import "github.com/coinrust/log"
@@ -19,4 +14,3 @@ func main() {
 
 	log.Infof("%v", "hello")
 }
-```
