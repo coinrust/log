@@ -12,17 +12,24 @@ const (
 	PanicLevel = "panic"
 )
 
-var logger *Log
+var logger *Logger
 
 // Init init logger
 func Init(path, level string, options ...Option) {
-	logger = NewZapAdapter(fmt.Sprintf("%s", path), level)
+	logger = NewLogger(path, level, options...)
+}
+
+// NewLogger new logger
+func NewLogger(path, level string, options ...Option) *Logger {
+	logger := NewZapAdapter(fmt.Sprintf("%s", path), level)
 
 	for _, opt := range options {
 		opt(logger)
 	}
 
 	logger.Build()
+
+	return logger
 }
 
 // Sync flushes buffer, if any
