@@ -1,9 +1,5 @@
 package log
 
-import (
-	"fmt"
-)
-
 const (
 	DebugLevel = "debug"
 	InfoLevel  = "info"
@@ -12,33 +8,76 @@ const (
 	PanicLevel = "panic"
 )
 
-var logger *Logger
+var logger Logger
+
+type Logger interface {
+	Debug(args ...interface{})
+
+	Info(args ...interface{})
+
+	Warn(args ...interface{})
+
+	Error(args ...interface{})
+
+	//DPanic(args ...interface{})
+
+	Panic(args ...interface{})
+
+	//Fatal(args ...interface{})
+
+	Debugf(template string, args ...interface{})
+
+	Infof(template string, args ...interface{})
+
+	Warnf(template string, args ...interface{})
+
+	Errorf(template string, args ...interface{})
+
+	//DPanicf(template string, args ...interface{})
+
+	Panicf(template string, args ...interface{})
+
+	//Fatalf(template string, args ...interface{})
+
+	//Debugw(msg string, keysAndValues ...interface{})
+
+	//Infow(msg string, keysAndValues ...interface{})
+
+	//Warnw(msg string, keysAndValues ...interface{})
+
+	//Errorw(msg string, keysAndValues ...interface{})
+
+	//DPanicw(msg string, keysAndValues ...interface{})
+
+	//Panicw(msg string, keysAndValues ...interface{})
+
+	//Fatalw(msg string, keysAndValues ...interface{})
+
+	Sync() error
+}
 
 // Init init logger
 func Init(path, level string, options ...Option) {
-	logger = NewLogger(path, level, options...)
-}
-
-// NewLogger new logger
-func NewLogger(path, level string, options ...Option) *Logger {
-	logger := NewZapAdapter(fmt.Sprintf("%s", path), level)
+	c := &Configuration{
+		Path:        path,
+		Level:       level,
+		MaxFileSize: 512, //MB
+		MaxBackups:  100,
+		MaxAge:      60,
+		Compress:    true,
+		Caller:      false,
+	}
 
 	for _, opt := range options {
-		opt(logger)
+		opt(c)
 	}
 
-	logger.Build()
-
-	return logger
-}
-
-// Sync flushes buffer, if any
-func Sync() {
-	if logger == nil {
-		return
+	switch {
+	case c.SLog:
+		logger = NewSLogger(c)
+	default:
+		logger = NewZapLogger(c)
 	}
-
-	logger.logger.Sync()
 }
 
 // Debug 使用方法：log.Debug("test")
@@ -59,15 +98,6 @@ func Debugf(template string, args ...interface{}) {
 	logger.Debugf(template, args...)
 }
 
-// Debugw 使用方法：log.Debugw("test", "field1", "value1", "field2", "value2")
-func Debugw(msg string, keysAndValues ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Debugw(msg, keysAndValues...)
-}
-
 func Info(args ...interface{}) {
 	if logger == nil {
 		return
@@ -82,38 +112,6 @@ func Infof(template string, args ...interface{}) {
 	}
 
 	logger.Infof(template, args...)
-}
-
-func Infow(msg string, keysAndValues ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Infow(msg, keysAndValues...)
-}
-
-func Warn(args ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Warn(args...)
-}
-
-func Warnf(template string, args ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Warnf(template, args...)
-}
-
-func Warnw(msg string, keysAndValues ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Warnw(msg, keysAndValues...)
 }
 
 func Error(args ...interface{}) {
@@ -132,14 +130,6 @@ func Errorf(template string, args ...interface{}) {
 	logger.Errorf(template, args...)
 }
 
-func Errorw(msg string, keysAndValues ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Errorw(msg, keysAndValues...)
-}
-
 func Panic(args ...interface{}) {
 	if logger == nil {
 		return
@@ -156,34 +146,11 @@ func Panicf(template string, args ...interface{}) {
 	logger.Panicf(template, args...)
 }
 
-func Panicw(msg string, keysAndValues ...interface{}) {
+// Sync flushes buffer, if any
+func Sync() {
 	if logger == nil {
 		return
 	}
 
-	logger.Panicw(msg, keysAndValues...)
-}
-
-func Fatal(args ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Fatal(args...)
-}
-
-func Fatalf(template string, args ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Fatalf(template, args...)
-}
-
-func Fatalw(msg string, keysAndValues ...interface{}) {
-	if logger == nil {
-		return
-	}
-
-	logger.Fatalw(msg, keysAndValues...)
+	logger.Sync()
 }
