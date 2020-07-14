@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	log.Init("./test.log",
+	log.Init("./test",
 		log.DebugLevel,
 		log.SetCaller(true),
 		log.SetStdout(true),
