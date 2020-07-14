@@ -114,6 +114,22 @@ func Infof(template string, args ...interface{}) {
 	logger.Infof(template, args...)
 }
 
+func Warn(args ...interface{}) {
+	if logger == nil {
+		return
+	}
+
+	logger.Warn(args...)
+}
+
+func Warnf(template string, args ...interface{}) {
+	if logger == nil {
+		return
+	}
+
+	logger.Warnf(template, args...)
+}
+
 func Error(args ...interface{}) {
 	if logger == nil {
 		return
