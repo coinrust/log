@@ -7,6 +7,8 @@ import (
 func init() {
 	log.Init("./test",
 		log.DebugLevel,
+		log.SetMaxFileSize(10),
+		log.SetMaxBackups(2),
 		log.SetCaller(true),
 		log.SetStdout(true),
 		log.SetSLog(true))
@@ -14,6 +16,7 @@ func init() {
 
 func main() {
 	defer log.Sync()
-
-	log.Infof("hello %v %v", "U", 1)
+	for i := int64(0); i < 1000000; i++ {
+		log.Infof("hello %v %v", "U", i)
+	}
 }

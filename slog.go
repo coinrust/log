@@ -101,16 +101,29 @@ func (l *SLogger) Sync() error {
 }
 
 func NewSLogger(c *Configuration) *SLogger {
-	w, err := slog.NewTimedRotatingFileWriter(c.Path,
-		slog.RotateByDate, 16)
+	level := parseSLogLevel(c.Level)
+
+	h := slog.NewHandler(level, slog.DefaultFormatter)
+
+	tw, err := slog.NewTimedRotatingFileWriter(c.Path,
+		slog.RotateByHour, uint8(c.MaxBackups))
 	if err != nil {
 		return nil
 	}
-	level := parseSLogLevel(c.Level)
-	h := slog.NewHandler(level, slog.DefaultFormatter)
-	h.AddWriter(w)
+
+	h.AddWriter(tw)
+
+	//fw, err := slog.NewRotatingFileWriter(c.Path,
+	//	uint64(c.MaxFileSize*1024*1024), uint8(c.MaxBackups))
+	//if err != nil {
+	//	return nil
+	//}
+	//
+	//h.AddWriter(fw)
+
 	l := slog.NewLogger(level)
 	l.AddHandler(h)
+
 	slog.SetDefaultLogger(l)
 
 	return &SLogger{inner: l}
