@@ -11,6 +11,7 @@ func init() {
 		log.SetMaxBackups(2),
 		log.SetCaller(true),
 		log.SetStdout(true),
+		log.SetCompress(true),
 		log.SetSLog(true))
 }
 

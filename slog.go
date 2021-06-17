@@ -105,8 +105,12 @@ func NewSLogger(c *Configuration) *SLogger {
 
 	h := slog.NewHandler(level, slog.DefaultFormatter)
 
+	maxBackup := c.MaxBackups
+	if maxBackup == 0 {
+		maxBackup = 16
+	}
 	tw, err := slog.NewTimedRotatingFileWriter(c.Path,
-		slog.RotateByHour, uint8(c.MaxBackups))
+		slog.RotateByDate, uint8(maxBackup))
 	if err != nil {
 		return nil
 	}
